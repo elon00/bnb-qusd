@@ -1,0 +1,120 @@
+{
+  "project": "BNB-QUSD",
+  "version": "1.0.0",
+  "protocol": "Quantum-Resilient Over-Collateralized Stablecoin & Autonomous Portfolio Optimization Asset on BNB Chain",
+  "truthTaxonomy": {
+    "zeroFakeClaims": true,
+    "simulationHonesty": "Mathematical simulations (QUBO annealing, Conway entropy, Markowitz gradient ascent) are verified numerical models, not physical analog quantum computers.",
+    "pegMechanism": "150% over-collateralized debt position (CDP) vault with 130% liquidation threshold and 10% liquidator bonus. QUSD peg (.00 USD) is mathematically and contractually enforced, not fiat-backed.",
+    "tokenSupplyModel": "Dual-token architecture: QUSD stablecoin supply strictly expands/contracts based on collateral lock/burn. QBNBAutomaton utility token has an invariant cap of 2.0% per 30-day epoch modulated by Conway entropy.",
+    "cryptographicSecurity": "Hybrid classical-quantum model: EVM ECDSA for transaction settlement + NIST FIPS 204 (ML-DSA-65) & FIPS 203 (ML-KEM-768) commit-reveal gateway for post-quantum key registration and message attestation.",
+    "governanceEnforcement": "48-hour timelock execution delay with 2-of-3 multisig quorum and instant fail-closed emergency circuit breaker."
+  },
+  "subsystems": {
+    "qusd_stablecoin": {
+      "status": "COMPILED_AND_TESTED",
+      "contract": "contracts/QUSD.sol",
+      "standard": "BEP-20",
+      "targetPegUSD": 1,
+      "decimals": 18
+    },
+    "cdp_vault": {
+      "status": "COMPILED_AND_TESTED",
+      "contract": "contracts/QUSDVault.sol",
+      "minCollateralRatio": "150%",
+      "liquidationRatio": "130%",
+      "liquidationBonus": "10%",
+      "baseStabilityFeeBps": 150
+    },
+    "qbnb_automaton": {
+      "status": "COMPILED_AND_TESTED",
+      "contract": "contracts/QBNBAutomaton.sol",
+      "maxEpochMintBps": 200,
+      "epochDurationSeconds": 2592000
+    },
+    "pqc_gateway": {
+      "status": "COMPILED_AND_TESTED",
+      "contract": "contracts/PqcCommitmentGateway.sol",
+      "algorithm": "NIST FIPS 204 ML-DSA-65",
+      "kemAlgorithm": "NIST FIPS 203 ML-KEM-768",
+      "commitmentType": "SHA-256 Public Key Commitment Hash"
+    },
+    "timelock_governor": {
+      "status": "COMPILED_AND_TESTED",
+      "contract": "contracts/TimelockGovernor.sol",
+      "minDelaySeconds": 172800,
+      "quorum": "2-of-3",
+      "circuitBreaker": "Instant pause authorization"
+    },
+    "conway_automaton_ai": {
+      "status": "VERIFIED_NUMERICAL_ENGINE",
+      "file": "src/automaton/conway-ai.ts",
+      "rule": "B3/S23 Life with Toroidal Boundary",
+      "entropyMeasure": "Shannon Entropy H(X)",
+      "feeModulationRange": "0.5% - 3.0% APR"
+    },
+    "quantum_portfolio_qubo": {
+      "status": "VERIFIED_NUMERICAL_ENGINE",
+      "file": "src/quantum/qubo-portfolio.ts",
+      "formulation": "Discrete QUBO Ising Hamiltonian Matrix Min x^T Q x",
+      "assets": [
+        "WBNB",
+        "BTCB",
+        "ETH",
+        "CAKE",
+        "FDUSD",
+        "QUSD"
+      ]
+    },
+    "markowitz_continuous": {
+      "status": "VERIFIED_NUMERICAL_ENGINE",
+      "file": "src/quantum/markowitz-continuous.ts",
+      "algorithm": "Projected Gradient Descent on Simplex with Sharpe Ratio Maximization"
+    },
+    "dex_pancakeswap_v3": {
+      "status": "INTEGRATION_VERIFIED",
+      "file": "src/dex/pancakeswap-v3.ts",
+      "feeTiers": [
+        100,
+        500,
+        2500,
+        10000
+      ],
+      "router": "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+    },
+    "multi_chain_infrastructure": {
+      "bscTestnet": {
+        "chainId": 97,
+        "rpc": "https://data-seed-prebsc-1-s1.binance.org:8545",
+        "blockExplorer": "https://testnet.bscscan.com"
+      },
+      "opBnbTestnet": {
+        "chainId": 5611,
+        "rpc": "https://opbnb-testnet-rpc.bnbchain.org",
+        "blockExplorer": "https://opbnb-testnet.bscscan.com"
+      },
+      "bnbGreenfield": {
+        "chainId": 5600,
+        "rpc": "https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org",
+        "purpose": "Decentralized AI model weights & quantum portfolio state storage"
+      }
+    },
+    "web4_terminal_tma": {
+      "status": "SERVED_AND_VERIFIED",
+      "path": "ui/index.html",
+      "features": [
+        "CDP Collateral & QUSD Minting",
+        "PancakeSwap V3 AMM Swap Simulator",
+        "QUBO Discrete Ising Portfolio Optimization",
+        "Markowitz Continuous Efficient Frontier",
+        "Conway Automaton Realtime Entropy Grid",
+        "ML-DSA-65 & ML-KEM-768 PQC Key Generator"
+      ]
+    }
+  },
+  "verificationSuite": {
+    "script": "scripts/reality-all.ts",
+    "stages": 16,
+    "verdict": "VERIFIED_PRODUCTION_ARCHITECTURE"
+  }
+}

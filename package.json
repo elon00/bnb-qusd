@@ -1,0 +1,45 @@
+{
+  "name": "bnb-qusd",
+  "version": "1.0.0",
+  "description": "BNB-QUSD: Quantum-Resilient Stablecoin & Intelligent Portfolio Asset on BNB Chain (BSC, opBNB, Greenfield)",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "compile": "node scripts/compile-solidity.mjs",
+    "test": "npx tsx --test tests/qusd.spec.ts tests/pqc-gateway.spec.ts tests/timelock.spec.ts",
+    "test:quantum": "npx tsx tests/qubo-portfolio.test.ts",
+    "test:nist": "npx tsx tests/nist-pqc.test.ts",
+    "seed:pancake": "npx tsx scripts/seed-pancake-pool.ts",
+    "monitor:health": "npx tsx scripts/monitor-health.ts",
+    "reality:all": "npx tsx scripts/reality-all.ts",
+    "ui": "node scripts/serve-ui.mjs"
+  },
+  "keywords": [
+    "bnb-chain",
+    "bsc",
+    "opbnb",
+    "stablecoin",
+    "qusd",
+    "bep-20",
+    "post-quantum",
+    "nist-fips-204",
+    "ml-dsa-65",
+    "conway-automaton",
+    "qubo",
+    "quantum-portfolio",
+    "pancakeswap-v3"
+  ],
+  "author": "elon00",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@noble/hashes": "^1.7.1",
+    "@noble/post-quantum": "^0.7.1",
+    "dotenv": "^16.4.7",
+    "solc": "^0.8.28",
+    "tsx": "^4.23.13",
+    "viem": "^2.21.58"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4"
+  }
+}

@@ -1,0 +1,38 @@
+name: BNB-QUSD Continuous Integration & Universal Reality Gate
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  reality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Compile Solidity Contracts
+        run: npm run compile
+
+      - name: Run Core Invariant Tests
+        run: npm test
+
+      - name: Run Quantum Portfolio Optimization Invariant Tests
+        run: npm run test:quantum
+
+      - name: Run NIST FIPS 203 & 204 PQC Cryptographic Tests
+        run: npm run test:nist
+
+      - name: Run 16-Stage Master Universal Reality Gate
+        run: npm run reality:all
