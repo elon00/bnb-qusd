@@ -1,0 +1,30 @@
+{
+  "network": "bscTestnet",
+  "chainId": 97,
+  "deployer": "0x7e490297be89C34C1A2F3B90aeE97298a80871eF",
+  "status": "AWAITING_GAS_FUNDING",
+  "targetContracts": {
+    "TimelockGovernor": {
+      "predictedAddress": "0x9BdC2e65Fca712a6d33720D1DD8B71b6CEC5a397",
+      "nonce": 0
+    },
+    "QUSD": {
+      "predictedAddress": "0xcaB00E21C6a96b37A75e76c14cE7eed8E75B73e6",
+      "nonce": 1
+    },
+    "QUSDVault": {
+      "predictedAddress": "0x554A04516816Fe123E41d6FA249ced137959181E",
+      "nonce": 2
+    },
+    "QBNBAutomaton": {
+      "predictedAddress": "0x857526B7fD77CAd583F5D9d5d89cE1E1de717b50",
+      "nonce": 3
+    },
+    "PqcCommitmentGateway": {
+      "predictedAddress": "0xf48CD40aC610e90CBD99aE3a85375087b8E69A7E",
+      "nonce": 4
+    }
+  },
+  "faucetGuide": "https://www.bnbchain.org/en/testnet-faucet",
+  "timestamp": "2026-09-10T01:21:27.841Z"
+}

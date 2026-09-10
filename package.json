@@ -11,6 +11,11 @@
     "test:nist": "npx tsx tests/nist-pqc.test.ts",
     "seed:pancake": "npx tsx scripts/seed-pancake-pool.ts",
     "monitor:health": "npx tsx scripts/monitor-health.ts",
+    "test:fuzz": "npx tsx --test tests/adversarial-fuzz.spec.ts",
+    "audit:security": "npx tsx scripts/security-audit.ts",
+    "wallet:setup": "npx tsx scripts/setup-wallet.ts",
+    "deploy:testnet": "npx tsx scripts/deploy-testnet.ts",
+    "lifecycle:e2e": "npx tsx scripts/e2e-testnet-lifecycle.ts",
     "reality:all": "npx tsx scripts/reality-all.ts",
     "ui": "node scripts/serve-ui.mjs"
   },

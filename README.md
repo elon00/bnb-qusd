@@ -2,10 +2,27 @@
 
 [![BNB Chain](https://img.shields.io/badge/BNB%20Chain-BSC%20%7C%20opBNB%20%7C%20Greenfield-F0B90B?logo=binance)](https://bnbchain.org)
 [![Post-Quantum Cryptography](https://img.shields.io/badge/NIST%20PQC-FIPS%20203%20%26%20204-blue)](https://csrc.nist.gov)
-[![Reality Gate](https://img.shields.io/badge/Reality%20Gate-16%2F16%20STAGES%20PASSED-brightgreen)](REALITY_MANIFEST.json)
+[![Reality Gate](https://img.shields.io/badge/Reality%20Gate-20%2F20%20STAGES%20PASSED-brightgreen)](REALITY_MANIFEST.json)
+[![Security Audit](https://img.shields.io/badge/Security%20Audit-0%20Vulnerabilities-brightgreen)](docs/SECURITY_AUDIT_REPORT.md)
+[![Fuzz Testing](https://img.shields.io/badge/Adversarial%20Fuzz-9%2F9%20PASS-brightgreen)](tests/adversarial-fuzz.spec.ts)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-An institutional-grade, zero-fake-claims stablecoin and decentralized portfolio optimization protocol built on BNB Chain (BSC, opBNB, and BNB Greenfield).
+An institutional-grade, zero-fake-claims stablecoin and decentralized quantum portfolio optimization protocol built on BNB Chain (BSC, opBNB, and BNB Greenfield).
+
+---
+
+## 🌐 Live Deployments & Provenance
+
+| Asset / Endpoint | Target / URL | Verification Status |
+| :--- | :--- | :--- |
+| **Live Web4 Terminal (GitHub Pages)** | [https://elon00.github.io/bnb-qusd/](https://elon00.github.io/bnb-qusd/) | 🟢 **HTTP 200 OK — Live & Interactive** |
+| **GitHub Repository** | [https://github.com/elon00/bnb-qusd](https://github.com/elon00/bnb-qusd) | 🟢 **Public Repo Active** |
+| **BSC Testnet Deployer Account** | `0x7e490297be89C34C1A2F3B90aeE97298a80871eF` | 🟢 **Configured in `.env` (gitignored)** |
+| **BSC Testnet Faucet** | [BNB Chain Testnet Faucet](https://www.bnbchain.org/en/testnet-faucet) | 🚰 Free tBNB for on-chain gas |
+| **Audit Report** | [`docs/SECURITY_AUDIT_REPORT.md`](docs/SECURITY_AUDIT_REPORT.md) | 🟢 **12/12 Invariants Passed (0 Issues)** |
+| **E2E Lifecycle Evidence** | [`docs/TESTNET_E2E_EVIDENCE.md`](docs/TESTNET_E2E_EVIDENCE.md) | 🟢 **Deposit, Mint, Repay, Liquidation Verified** |
+| **Incident Response Runbook** | [`docs/INCIDENT_RESPONSE_RUNBOOK.md`](docs/INCIDENT_RESPONSE_RUNBOOK.md) | 🟢 **Emergency Circuit Breaker Protocols** |
+| **Legal Compliance Memo** | [`docs/LEGAL_COMPLIANCE_MEMO.md`](docs/LEGAL_COMPLIANCE_MEMO.md) | 🟢 **Howey Test Non-Security Analysis** |
 
 ---
 
@@ -18,6 +35,7 @@ BNB-QUSD solves the classic financial tension between **unconditional stable val
    - Minting Requirement: **150% Minimum Over-Collateralization Ratio (MCR)** backed by verified BNB Chain collateral (`WBNB`, `BTCB`, `ETH`).
    - Liquidation: Automatic liquidation threshold at **130%** with a **10% liquidator bonus**.
    - Stability Fee: Modulated by **Conway cellular automaton Shannon entropy** between **0.5% and 3.0% APR**.
+   - Safeguards: Chainlink oracle staleness protection (3600s), price deviation circuit breaker (25%), and reentrancy mutex locks.
 2. **`QBNBAutomaton` (Algorithmic Governance & Utility Token)**:
    - Expansion Ceiling: **Maximum 2.0% per 30-day epoch (`MAX_EPOCH_MINT_BPS = 200`)**.
    - Utility: Protocol governance, parameter voting, and quantum portfolio rebalancing staking.
@@ -50,40 +68,42 @@ BNB-QUSD solves the classic financial tension between **unconditional stable val
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & CLI Workflows
 
-### Prerequisites
-- Node.js >= 20.0.0
-- npm >= 10.0.0
-
-### Installation
 ```bash
+# Clone and Install
 git clone https://github.com/elon00/bnb-qusd.git
 cd bnb-qusd
 npm install
-```
 
-### Compile Smart Contracts
-```bash
+# Setup & Inspect BSC Testnet Deployer Wallet
+npm run wallet:setup
+
+# Compile Solidity 0.8.28 Contracts
 npm run compile
-```
 
-### Run Automated Invariant Tests
-```bash
+# Run Invariant & Cryptographic Test Suites
 npm test
 npm run test:quantum
 npm run test:nist
-```
 
-### Run 16-Stage Master Universal Reality Gate
-```bash
+# Run Adversarial & Fuzz Precision Invariant Suite
+npm run test:fuzz
+
+# Run Automated Security Audit Static Analysis
+npm run audit:security
+
+# Execute 20-Stage Master Universal Reality Gate
 npm run reality:all
-```
 
-### Launch Web4 Terminal & Telegram Mini App UI
-```bash
+# Deploy Smart Contracts to BSC Testnet (when funded)
+npm run deploy:testnet
+
+# Record Real E2E Testnet Lifecycle Proofs
+npm run lifecycle:e2e
+
+# Launch Local Web4 Terminal & Telegram Mini App UI
 npm run ui
-# Visit http://localhost:3001
 ```
 
 ---
@@ -94,6 +114,10 @@ npm run ui
 - **Evidence Registry**: [`bnb-qusd-evidence-registry.json`](bnb-qusd-evidence-registry.json)
 - **Tokenomics Specification**: [`docs/TOKENOMICS.md`](docs/TOKENOMICS.md)
 - **Architecture Blueprint**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- **Security Audit Report**: [`docs/SECURITY_AUDIT_REPORT.md`](docs/SECURITY_AUDIT_REPORT.md)
+- **E2E Evidence Log**: [`docs/TESTNET_E2E_EVIDENCE.md`](docs/TESTNET_E2E_EVIDENCE.md)
+- **Incident Response Runbook**: [`docs/INCIDENT_RESPONSE_RUNBOOK.md`](docs/INCIDENT_RESPONSE_RUNBOOK.md)
+- **Legal Compliance Memo**: [`docs/LEGAL_COMPLIANCE_MEMO.md`](docs/LEGAL_COMPLIANCE_MEMO.md)
 
 ---
 

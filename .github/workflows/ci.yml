@@ -34,5 +34,11 @@ jobs:
       - name: Run NIST FIPS 203 & 204 PQC Cryptographic Tests
         run: npm run test:nist
 
-      - name: Run 16-Stage Master Universal Reality Gate
+      - name: Run Adversarial & Fuzz Invariant Tests
+        run: npm run test:fuzz
+
+      - name: Run Institutional Security Audit Scan
+        run: npm run audit:security
+
+      - name: Run 20-Stage Master Universal Reality Gate
         run: npm run reality:all
