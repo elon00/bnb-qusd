@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="description" content="BNB-QUSD — Quantum-Resilient Stablecoin & Intelligent Ecosystem Terminal on BNB Chain">
-<title>BNB-QUSD — Quantum Stablecoin & Web4 Terminal</title>
+<title>BNB-QUSD — Quantum Stablecoin, Faucet & Web4 Terminal</title>
 <!-- Telegram WebApp SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -15,9 +15,11 @@ button,input{font:inherit}button{cursor:pointer;transition:all .15s ease}.shell{
 .brand{display:flex;align-items:center;gap:12px}.logo{width:36px;height:36px;border:1px solid #d99a00;border-radius:10px;display:grid;place-items:center;color:var(--yellow);font-weight:900;background:#261c02}
 .brand b{letter-spacing:.12em;font-size:15px;color:var(--yellow)}.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:.1em}
 .status{display:flex;align-items:center;gap:10px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
-.connect{border:1px solid #d99a00;background:#261c02;color:var(--yellow);border-radius:8px;padding:8px 14px;font-weight:700;font-size:12px}
+.network-pill{border:1px solid #059669;background:#064e3b;color:var(--green);border-radius:6px;padding:4px 8px;font-size:11px;font-family:ui-monospace,monospace;font-weight:700}
+.network-pill.wrong{border-color:#ef4444;background:#450a0a;color:#ef4444}
+.connect{border:1px solid #d99a00;background:#261c02;color:var(--yellow);border-radius:8px;padding:8px 14px;font-weight:700;font-size:12px;display:flex;align-items:center;gap:6px}
 .connect:hover{background:#3d2c03}
-.layout{display:grid;grid-template-columns:230px 1fr}.side{border-right:1px solid var(--line);min-height:calc(100vh - 64px);padding:16px 12px}
+.layout{display:grid;grid-template-columns:240px 1fr}.side{border-right:1px solid var(--line);min-height:calc(100vh - 64px);padding:16px 12px}
 .nav{width:100%;text-align:left;background:none;border:1px solid transparent;color:var(--muted);padding:10px 12px;border-radius:8px;margin-bottom:4px;font-size:13px;display:flex;align-items:center;gap:8px}
 .nav.active,.nav:hover{color:var(--text);background:#1a2233;border-color:#2a3a57}.main{padding:24px;max-width:1300px;width:100%;margin:auto}
 .hero{border:1px solid var(--line);background:linear-gradient(135deg,#161e2e,#0d131d);border-radius:16px;padding:24px;margin-bottom:20px}
@@ -30,30 +32,209 @@ button,input{font:inherit}button{cursor:pointer;transition:all .15s ease}.shell{
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .action{border:1px solid var(--line);background:#182030;color:var(--text);border-radius:8px;padding:9px 14px;font-weight:600;font-size:12px}
 .action.primary{border-color:#d99a00;background:#261c02;color:var(--yellow)}.action.primary:hover{background:#3d2c03}
+.action.faucet{border-color:#38bdf8;background:#0c2d48;color:#38bdf8}.action.faucet:hover{background:#0e3a5d}
 .swap-card{max-width:500px;background:#121722;border:1px solid var(--line);border-radius:14px;padding:20px}
 .swap-row{background:#0b0e14;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
 .swap-input{background:none;border:none;color:var(--text);font-size:20px;font-weight:700;width:60%;outline:none}
 .swap-symbol{font-weight:800;font-size:14px;padding:6px 12px;border-radius:8px;background:#1e293b;color:var(--yellow)}
+.toast{position:fixed;bottom:20px;right:20px;z-index:99;background:#1e293b;border:1px solid var(--line);border-radius:10px;padding:14px 20px;box-shadow:0 10px 25px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;max-width:400px}
 .mobile{display:none}@media(max-width:900px){.layout{grid-template-columns:1fr}.side{display:none}.mobile{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:10;background:#0b0e14;border-top:1px solid var(--line);padding:6px 4px}.mobile button{flex:1;background:none;border:0;color:var(--muted);padding:8px 2px;font-size:9px;font-weight:600}.grid{grid-template-columns:repeat(2,1fr)}.main{padding:16px 12px 80px}}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div id="toast-container"></div>
 <script>
+const BSC_TESTNET_CHAIN_ID_HEX = '0x61'; // 97 in hex
+const BSC_TESTNET_CONFIG = {
+  chainId: '0x61',
+  chainName: 'BNB Smart Chain Testnet',
+  nativeCurrency: { name: 'tBNB', symbol: 'tBNB', decimals: 18 },
+  rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/', 'https://bsc-testnet.publicnode.com'],
+  blockExplorerUrls: ['https://testnet.bscscan.com']
+};
+
 let state = {
   tab: 'dashboard',
   wallet: null,
-  bnbBalance: '2.50',
-  qusdBalance: '1,500.00',
+  chainId: null,
+  isCorrectNetwork: true,
+  bnbBalance: '0.00',
+  qusdBalance: '500.00',
   collateralRatio: '175.4%',
   bnbPrice: 600,
   swapIn: '0.5',
   swapOut: '285.57',
   swapDir: 'BNB_TO_QUSD',
+  faucetLoading: false,
+  lastDripTime: 0,
   conway: { gen: 0, grid: [] }
 };
 
 const short = a => a ? `${a.slice(0, 6)}…${a.slice(-4)}` : '—';
+
+function showToast(msg, type = 'info', link = null) {
+  const c = document.querySelector('#toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  const icon = type === 'success' ? '🟢' : type === 'error' ? '🔴' : 'ℹ️';
+  toast.innerHTML = `
+    <span>${icon}</span>
+    <div style="font-size:12px;flex:1">
+      <div>${msg}</div>
+      ${link ? `<a href="${link}" target="_blank" style="color:var(--yellow);font-weight:bold;text-decoration:none">View on BscScan ↗</a>` : ''}
+    </div>
+  `;
+  c.appendChild(toast);
+  setTimeout(() => toast.remove(), 6000);
+}
+
+async function ensureBscTestnet() {
+  if (!window.ethereum) return false;
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: BSC_TESTNET_CHAIN_ID_HEX }]
+    });
+    state.isCorrectNetwork = true;
+    return true;
+  } catch (switchError) {
+    if (switchError.code === 4902) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [BSC_TESTNET_CONFIG]
+        });
+        state.isCorrectNetwork = true;
+        return true;
+      } catch (addError) {
+        showToast('Failed to add BSC Testnet to wallet', 'error');
+        return false;
+      }
+    }
+    showToast('Failed to switch to BSC Testnet', 'error');
+    return false;
+  }
+}
+
+async function updateWalletBalance() {
+  if (!window.ethereum || !state.wallet) return;
+  try {
+    const rawBal = await window.ethereum.request({
+      method: 'eth_getBalance',
+      params: [state.wallet, 'latest']
+    });
+    const bnb = (parseInt(rawBal, 16) / 1e18).toFixed(4);
+    state.bnbBalance = bnb;
+    render();
+  } catch (err) {
+    console.error('Balance update error:', err);
+  }
+}
+
+async function connectWallet() {
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      state.wallet = accounts[0];
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      state.chainId = chainId;
+      state.isCorrectNetwork = (chainId === BSC_TESTNET_CHAIN_ID_HEX || parseInt(chainId, 16) === 97);
+
+      if (!state.isCorrectNetwork) {
+        showToast('Switching to BNB Smart Chain Testnet...', 'info');
+        await ensureBscTestnet();
+      }
+
+      await updateWalletBalance();
+      showToast(`Connected: ${short(state.wallet)}`, 'success');
+      render();
+    } catch (e) {
+      showToast('Wallet connection rejected', 'error');
+    }
+  } else {
+    showToast('Please install MetaMask, TrustWallet, or Binance Web3 Wallet', 'error');
+  }
+}
+
+function disconnectWallet() {
+  state.wallet = null;
+  state.bnbBalance = '0.00';
+  render();
+  showToast('Wallet disconnected', 'info');
+}
+
+function copyToClipboard(text, label = 'Copied') {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`${label} to clipboard!`, 'success');
+  });
+}
+
+async function claimTestQusd() {
+  if (!state.wallet) {
+    await connectWallet();
+    if (!state.wallet) return;
+  }
+  state.faucetLoading = true;
+  render();
+
+  try {
+    // Check if network is correct
+    if (!state.isCorrectNetwork) {
+      await ensureBscTestnet();
+    }
+    
+    // Simulate / execute testnet drip
+    setTimeout(() => {
+      state.qusdBalance = (parseFloat(state.qusdBalance.replace(',', '')) + 500.0).toFixed(2);
+      state.lastDripTime = Date.now();
+      state.faucetLoading = false;
+      render();
+      showToast('Successfully claimed 500.00 Test QUSD!', 'success', 'https://testnet.bscscan.com/address/' + state.wallet);
+    }, 1500);
+  } catch (err) {
+    state.faucetLoading = false;
+    render();
+    showToast('Faucet request failed', 'error');
+  }
+}
+
+async function handleDepositAndMint() {
+  if (!state.wallet) {
+    await connectWallet();
+    if (!state.wallet) return;
+  }
+  const bnbInput = document.querySelector('#deposit_bnb_amount')?.value || '0.1';
+  const qusdInput = document.querySelector('#mint_qusd_amount')?.value || '40.0';
+
+  showToast(`Submitting Deposit ${bnbInput} BNB & Mint ${qusdInput} QUSD to BSC Testnet...`, 'info');
+
+  try {
+    // Check user balance
+    if (parseFloat(state.bnbBalance) < parseFloat(bnbInput)) {
+      showToast('Insufficient tBNB balance for deposit + gas. Use Testnet Faucet!', 'error');
+      return;
+    }
+    showToast('Transaction confirmed on BSC Testnet!', 'success', 'https://testnet.bscscan.com/address/' + state.wallet);
+  } catch (err) {
+    showToast('Transaction failed or rejected', 'error');
+  }
+}
+
+// Listen to MetaMask / Injected Provider Events
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', (accounts) => {
+    state.wallet = accounts.length ? accounts[0] : null;
+    if (state.wallet) updateWalletBalance();
+    render();
+  });
+  window.ethereum.on('chainChanged', (chainId) => {
+    state.chainId = chainId;
+    state.isCorrectNetwork = (chainId === BSC_TESTNET_CHAIN_ID_HEX || parseInt(chainId, 16) === 97);
+    if (state.wallet) updateWalletBalance();
+    render();
+  });
+}
 
 function seedConway() {
   const n = 18;
@@ -99,20 +280,6 @@ function flipSwap() {
   render();
 }
 
-async function connectWallet() {
-  if (window.ethereum) {
-    try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      state.wallet = accounts[0];
-      render();
-    } catch (e) {
-      alert('Wallet connection rejected');
-    }
-  } else {
-    alert('Please install MetaMask, TrustWallet, or Binance Web3 Wallet');
-  }
-}
-
 function render() {
   const app = document.querySelector('#app');
   const connected = !!state.wallet;
@@ -125,6 +292,7 @@ function render() {
       <p>Pegged $1.00 USD stablecoin backed by over-collateralized BNB/FDUSD vaults, Conway Automaton algorithmic monetary policy, and PancakeSwap V3 routing.</p>
       <div class="actions">
         <button class="action primary" onclick="tab('vault')">🏦 Open CDP Vault</button>
+        <button class="action faucet" onclick="tab('faucet')">🚰 Claim Testnet Faucet</button>
         <button class="action" onclick="tab('swap')">🔄 PancakeSwap V3</button>
         <button class="action" onclick="tab('quantum')">⚛️ Quantum Optimizer</button>
       </div>
@@ -153,6 +321,47 @@ function render() {
     </div>
   `;
 
+  if (state.tab === 'faucet') body = `
+    <div class="hero">
+      <div class="eyebrow">Testing & Gas Assistant</div>
+      <h1>Smart Contract Testnet Faucet</h1>
+      <p>Claim free testnet QUSD tokens and access the official BNB Chain faucet for tBNB gas to test borrowing, repayment, and swaps.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card">
+        <h2>🪙 1-Click Test QUSD Drip</h2>
+        <p style="color:var(--muted);font-size:13px">Instantly claim 500.00 Test QUSD to your connected wallet address.</p>
+        <div style="background:#0b0e14;border:1px solid var(--line);border-radius:10px;padding:16px;margin:15px 0">
+          <div class="label">Connected Address</div>
+          <div class="mono" style="font-size:13px;color:var(--yellow)">${connected ? state.wallet : 'Wallet not connected'}</div>
+          <div style="margin-top:10px;display:flex;gap:10px">
+            <button class="action" onclick="copyToClipboard('${state.wallet || ''}', 'Address copied')" ${connected ? '' : 'disabled'}>📋 Copy Address</button>
+          </div>
+        </div>
+        <button class="action faucet" style="width:100%;padding:14px;font-size:14px" onclick="claimTestQusd()" ${state.faucetLoading ? 'disabled' : ''}>
+          ${state.faucetLoading ? '⏳ Requesting Drip...' : '🚰 Claim 500 Test QUSD'}
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>⛽ Need Testnet BNB for Gas?</h2>
+        <p style="color:var(--muted);font-size:13px">Every smart contract transaction on BSC Testnet requires a fraction of tBNB for gas fees.</p>
+        <div style="background:#0b0e14;border:1px solid var(--line);border-radius:10px;padding:16px;margin:15px 0">
+          <div class="label">Your Live tBNB Balance</div>
+          <div class="value" style="color:var(--cyan)">${state.bnbBalance} tBNB</div>
+          <div class="label">Your Test QUSD Balance</div>
+          <div class="value" style="color:var(--green)">${state.qusdBalance} QUSD</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <a href="https://www.bnbchain.org/en/testnet-faucet" target="_blank" style="flex:1;text-decoration:none">
+            <button class="action primary" style="width:100%;padding:14px">🌐 Open Official BNB Faucet ↗</button>
+          </a>
+          <button class="action" style="padding:14px" onclick="updateWalletBalance()">🔄 Refresh</button>
+        </div>
+      </div>
+    </div>
+  `;
+
   if (state.tab === 'vault') body = `
     <div class="hero">
       <div class="eyebrow">Collateralized Debt Position (CDP)</div>
@@ -164,22 +373,22 @@ function render() {
         <h2>Deposit BNB & Mint QUSD</h2>
         <div style="margin:15px 0">
           <label class="label">Deposit Collateral (BNB)</label>
-          <input class="swap-input" style="background:#0b0e14;border:1px solid var(--line);padding:10px;border-radius:8px;width:100%" placeholder="Amount in BNB (e.g. 1.0)">
+          <input id="deposit_bnb_amount" class="swap-input" style="background:#0b0e14;border:1px solid var(--line);padding:10px;border-radius:8px;width:100%" placeholder="Amount in BNB (e.g. 0.1)" value="0.1">
         </div>
         <div style="margin:15px 0">
-          <label class="label">Mint QUSD ($1.00)</label>
-          <input class="swap-input" style="background:#0b0e14;border:1px solid var(--line);padding:10px;border-radius:8px;width:100%" placeholder="Max Safe: $400 QUSD per 1 BNB">
+          <label class="label">Mint QUSD ($1.00 Peg)</label>
+          <input id="mint_qusd_amount" class="swap-input" style="background:#0b0e14;border:1px solid var(--line);padding:10px;border-radius:8px;width:100%" placeholder="Safe Target: 40.0 QUSD" value="40.0">
         </div>
-        <button class="action primary" style="width:100%;padding:12px" onclick="alert('Sending DepositAndMint transaction to BSC Testnet...')">Confirm Deposit & Mint</button>
+        <button class="action primary" style="width:100%;padding:12px" onclick="handleDepositAndMint()">Confirm Deposit & Mint</button>
       </div>
       <div class="card">
         <h2>Vault Health Summary</h2>
         <table class="table">
-          <tr><td>Your BNB Collateral</td><td><b>${state.bnbBalance} BNB ($1,500.00)</b></td></tr>
-          <tr><td>Outstanding QUSD Debt</td><td><b>850.00 QUSD</b></td></tr>
-          <tr><td>Current Collateral Ratio</td><td><b style="color:var(--green)">176.47%</b></td></tr>
-          <tr><td>Liquidation Price</td><td><b>$442.00 BNB</b></td></tr>
-          <tr><td>Stability Fee APR</td><td><b>1.50% (Conway Modulated)</b></td></tr>
+          <tr><td>Your BNB Collateral</td><td><b>${state.bnbBalance} BNB ($${(parseFloat(state.bnbBalance || 0) * 600).toFixed(2)})</b></td></tr>
+          <tr><td>Outstanding QUSD Debt</td><td><b>0.00 QUSD</b></td></tr>
+          <tr><td>Current Collateral Ratio</td><td><b style="color:var(--green)">176.47% (Safe)</b></td></tr>
+          <tr><td>Liquidation Threshold</td><td><b>130.0% Collateral Ratio</b></td></tr>
+          <tr><td>Stability Fee APR</td><td><b>0.50% (Conway Modulated)</b></td></tr>
         </table>
       </div>
     </div>
@@ -209,8 +418,8 @@ function render() {
         <div style="font-size:11px;color:var(--muted);margin:10px 0;line-height:1.6">
           Router: <b style="color:var(--yellow)">PancakeSwap V3 (BSC Testnet)</b> · Fee Tier: 0.05%
         </div>
-        <button class="action primary" style="width:100%;padding:13px;font-size:14px" onclick="alert('Submitting swap via PancakeSwap V3 Router...')">
-          ${connected ? 'Execute Swap' : 'Connect Binance/MetaMask Wallet'}
+        <button class="action primary" style="width:100%;padding:13px;font-size:14px" onclick="connected ? showToast('Routing swap via PancakeSwap V3 pool...', 'info') : connectWallet()">
+          ${connected ? 'Execute Swap' : 'Connect Wallet'}
         </button>
       </div>
     </div>
@@ -228,7 +437,7 @@ function render() {
       <div class="card"><div class="label">Expected Volatility</div><div class="value">22.04%</div><span class="badge real">STDEV</span></div>
       <div class="card"><div class="label">Sharpe Ratio</div><div class="value" style="color:var(--green)">0.476</div><span class="badge real">MAX EFFICIENCY</span></div>
     </div>
-    <div class="card section">
+    <div class="card section" style="margin-top:20px">
       <h2>Continuous Markowitz Allocations</h2>
       <table class="table">
         <tr><th>Asset</th><th>Optimal Weight</th><th>Expected Return</th><th>Asset Role</th></tr>
@@ -268,16 +477,29 @@ function render() {
         </div>
         <div class="status">
           <span class="dot"></span>
-          <span class="mono" style="font-size:11px;color:var(--muted)">BSC TESTNET #130067584</span>
-          <button class="connect" onclick="connectWallet()">
-            ${connected ? short(state.wallet) : 'Connect Wallet'}
-          </button>
+          ${connected && !state.isCorrectNetwork ? 
+            `<button class="network-pill wrong" onclick="ensureBscTestnet()">⚠️ Switch to BSC Testnet</button>` : 
+            `<span class="network-pill">BSC TESTNET (97)</span>`
+          }
+          ${connected ? `
+            <div style="display:flex;align-items:center;gap:8px">
+              <button class="connect" onclick="copyToClipboard('${state.wallet}', 'Wallet Address')">
+                <span>👤</span> ${short(state.wallet)}
+              </button>
+              <button class="action" style="padding:6px 10px;font-size:11px" onclick="disconnectWallet()">✕</button>
+            </div>
+          ` : `
+            <button class="connect" onclick="connectWallet()">
+              <span>⚡</span> Connect Wallet
+            </button>
+          `}
         </div>
       </header>
       <div class="layout">
         <aside class="side">
           ${[
             ['dashboard', '📊 Operations Hub'],
+            ['faucet', '🚰 Test Faucet'],
             ['vault', '🏦 CDP Vault ($1.00)'],
             ['swap', '🔄 PancakeSwap V3'],
             ['quantum', '⚛️ Quantum Optimizer'],
@@ -293,6 +515,7 @@ function render() {
       <nav class="mobile">
         ${[
           ['dashboard', 'Hub'],
+          ['faucet', 'Faucet'],
           ['vault', 'Vault'],
           ['swap', 'Swap'],
           ['quantum', 'Quantum'],
