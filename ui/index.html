@@ -39,6 +39,20 @@ button,input{font:inherit}button{cursor:pointer;transition:all .15s ease}.shell{
 .swap-symbol{font-weight:800;font-size:14px;padding:6px 12px;border-radius:8px;background:#1e293b;color:var(--yellow)}
 .toast{position:fixed;bottom:20px;right:20px;z-index:99;background:#1e293b;border:1px solid var(--line);border-radius:10px;padding:14px 20px;box-shadow:0 10px 25px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;max-width:400px}
 .mobile{display:none}@media(max-width:900px){.layout{grid-template-columns:1fr}.side{display:none}.mobile{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:10;background:#0b0e14;border-top:1px solid var(--line);padding:6px 4px}.mobile button{flex:1;background:none;border:0;color:var(--muted);padding:8px 2px;font-size:9px;font-weight:600}.grid{grid-template-columns:repeat(2,1fr)}.main{padding:16px 12px 80px}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#121722;border:1px solid #2a3a57;border-radius:16px;max-width:440px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.8);animation:popIn .2s ease}
+@keyframes popIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-hdr h3{margin:0;font-size:17px;font-weight:800;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.wallet-list{display:flex;flex-direction:column;gap:9px}
+.wallet-opt{display:flex;align-items:center;justify-content:space-between;background:#0b0e14;border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s ease}
+.wallet-opt:hover{border-color:var(--yellow);background:#182236;transform:translateX(2px)}
+.wallet-opt-left{display:flex;align-items:center;gap:12px}
+.wallet-opt-icon{font-size:24px}
+.wallet-opt-name{font-weight:700;font-size:13px;color:var(--text)}
+.wallet-opt-desc{font-size:11px;color:var(--muted)}
+.wallet-tag{font-size:10px;padding:3px 7px;border-radius:6px;background:#1e293b;color:var(--yellow);font-weight:600}
 </style>
 </head>
 <body>
@@ -68,7 +82,8 @@ let state = {
   swapDir: 'BNB_TO_QUSD',
   faucetLoading: false,
   lastDripTime: 0,
-  conway: { gen: 0, grid: [] }
+  conway: { gen: 0, grid: [] },
+  walletModalOpen: false
 };
 
 const short = a => a ? `${a.slice(0, 6)}…${a.slice(-4)}` : '—';
@@ -132,12 +147,66 @@ async function updateWalletBalance() {
   }
 }
 
-async function connectWallet() {
-  if (window.ethereum) {
+function openWalletModal() {
+  state.walletModalOpen = true;
+  render();
+}
+
+function closeWalletModal() {
+  state.walletModalOpen = false;
+  render();
+}
+
+function connectWallet() {
+  openWalletModal();
+}
+
+async function connectSpecificWallet(walletType) {
+  closeWalletModal();
+
+  if (walletType === 'manual') {
+    const addr = prompt('Enter your BNB Chain / BEP-20 Wallet Address:', state.wallet || '0xbbaaD9B836f9bd61cD0d616a016Cc911A2E1f60D');
+    if (addr && addr.startsWith('0x') && addr.length === 42) {
+      state.wallet = addr;
+      showToast(`Connected custom address: ${short(addr)}`, 'success');
+      await updateWalletBalance();
+      render();
+    } else if (addr) {
+      showToast('Invalid BEP-20 address (must be 42 characters starting with 0x)', 'error');
+    }
+    return;
+  }
+
+  let provider = null;
+  if (walletType === 'metamask') {
+    if (window.ethereum?.isMetaMask) {
+      provider = window.ethereum;
+    } else if (window.ethereum?.providers) {
+      provider = window.ethereum.providers.find(p => p.isMetaMask);
+    }
+    if (!provider && window.ethereum) provider = window.ethereum;
+  } else if (walletType === 'trust') {
+    provider = window.trustwallet || (window.ethereum?.isTrust ? window.ethereum : null);
+    if (!provider && window.ethereum?.providers) {
+      provider = window.ethereum.providers.find(p => p.isTrust);
+    }
+  } else if (walletType === 'binance') {
+    provider = window.BinanceChain || (window.ethereum?.isBinance ? window.ethereum : null);
+  } else if (walletType === 'coinbase') {
+    provider = window.ethereum?.isCoinbaseWallet ? window.ethereum : null;
+    if (!provider && window.ethereum?.providers) {
+      provider = window.ethereum.providers.find(p => p.isCoinbaseWallet);
+    }
+  } else if (walletType === 'injected') {
+    provider = window.ethereum;
+  }
+
+  if (provider) {
     try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      showToast(`Connecting to ${walletType.toUpperCase()}...`, 'info');
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
       state.wallet = accounts[0];
-      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const chainId = await provider.request({ method: 'eth_chainId' });
       state.chainId = chainId;
       state.isCorrectNetwork = (chainId === BSC_TESTNET_CHAIN_ID_HEX || parseInt(chainId, 16) === 97);
 
@@ -150,10 +219,23 @@ async function connectWallet() {
       showToast(`Connected: ${short(state.wallet)}`, 'success');
       render();
     } catch (e) {
-      showToast('Wallet connection rejected', 'error');
+      showToast(`${walletType} connection rejected or failed`, 'error');
     }
   } else {
-    showToast('Please install MetaMask, TrustWallet, or Binance Web3 Wallet', 'error');
+    // If specific provider object not isolated, try standard window.ethereum fallback
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        state.wallet = accounts[0];
+        await updateWalletBalance();
+        showToast(`Connected via Web3 Provider: ${short(state.wallet)}`, 'success');
+        render();
+      } catch (err) {
+        showToast('Connection failed or rejected', 'error');
+      }
+    } else {
+      showToast(`${walletType.toUpperCase()} extension not detected. Please install it!`, 'error');
+    }
   }
 }
 
@@ -584,6 +666,85 @@ function render() {
       </nav>
     </div>
   `;
+
+  if (state.walletModalOpen) {
+    app.innerHTML += `
+      <div class="modal-overlay" onclick="closeWalletModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+          <div class="modal-hdr">
+            <h3>Connect a Wallet</h3>
+            <button class="modal-close" onclick="closeWalletModal()">&times;</button>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:0">Choose your preferred BNB Smart Chain wallet provider</p>
+          <div class="wallet-list">
+            <div class="wallet-opt" onclick="connectSpecificWallet('metamask')">
+              <div class="wallet-opt-left">
+                <span class="wallet-opt-icon">🦊</span>
+                <div>
+                  <div class="wallet-opt-name">MetaMask</div>
+                  <div class="wallet-opt-desc">Popular EVM Wallet & Browser Extension</div>
+                </div>
+              </div>
+              <span class="wallet-tag">RECOMMENDED</span>
+            </div>
+
+            <div class="wallet-opt" onclick="connectSpecificWallet('trust')">
+              <div class="wallet-opt-left">
+                <span class="wallet-opt-icon">🛡️</span>
+                <div>
+                  <div class="wallet-opt-name">Trust Wallet</div>
+                  <div class="wallet-opt-desc">Official Binance Multi-Chain Web3 Wallet</div>
+                </div>
+              </div>
+              <span class="wallet-tag">BNB READY</span>
+            </div>
+
+            <div class="wallet-opt" onclick="connectSpecificWallet('binance')">
+              <div class="wallet-opt-left">
+                <span class="wallet-opt-icon">🟡</span>
+                <div>
+                  <div class="wallet-opt-name">Binance Web3 Wallet</div>
+                  <div class="wallet-opt-desc">Direct Binance App / Extension Integration</div>
+                </div>
+              </div>
+              <span class="wallet-tag">NATIVE</span>
+            </div>
+
+            <div class="wallet-opt" onclick="connectSpecificWallet('coinbase')">
+              <div class="wallet-opt-left">
+                <span class="wallet-opt-icon">🔵</span>
+                <div>
+                  <div class="wallet-opt-name">Coinbase Wallet</div>
+                  <div class="wallet-opt-desc">Self-Custodial EVM Smart Wallet</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="wallet-opt" onclick="connectSpecificWallet('injected')">
+              <div class="wallet-opt-left">
+                <span class="wallet-opt-icon">🌐</span>
+                <div>
+                  <div class="wallet-opt-name">Browser Web3 Provider</div>
+                  <div class="wallet-opt-desc">Brave, Opera, or Injected Provider</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="wallet-opt" onclick="connectSpecificWallet('manual')">
+              <div class="wallet-opt-left">
+                <span class="wallet-opt-icon">✍️</span>
+                <div>
+                  <div class="wallet-opt-name">Manual BEP-20 Address</div>
+                  <div class="wallet-opt-desc">Watch / Simulator Mode (Paste 0x... Address)</div>
+                </div>
+              </div>
+              <span class="wallet-tag">OBSERVER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 }
 
 state.conway.grid = seedConway();
