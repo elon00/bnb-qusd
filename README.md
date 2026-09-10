@@ -21,6 +21,14 @@
 
 **BNB-QUSD has substantial testnet-oriented implementation and repository-recorded E2E lifecycle evidence, but this README does not label it as an independently audited, mainnet-live stablecoin or market-proven production system.**
 
+## 📄 Whitepaper
+
+The complete English technical whitepaper is maintained in the repository:
+
+**[BNB-QUSD Whitepaper](docs/WHITEPAPER.md)**
+
+It documents the QUSD/CDP architecture, collateral and liquidation model, PQC gateway, governance controls, quantum portfolio research, AMM integration, verification methodology, security gates, roadmap, and current production/market limitations.
+
 ## 🧩 Architecture
 
 - **QUSD** — over-collateralized BEP-20 stablecoin model.
