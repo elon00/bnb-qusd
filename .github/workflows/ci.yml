@@ -2,25 +2,33 @@ name: BNB-QUSD Continuous Integration & Universal Reality Gate
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   reality-gate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 24
+          cache: npm
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Reject high/critical production dependency advisories
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Compile Solidity Contracts
         run: npm run compile
@@ -37,8 +45,8 @@ jobs:
       - name: Run Adversarial & Fuzz Invariant Tests
         run: npm run test:fuzz
 
-      - name: Run Institutional Security Audit Scan
+      - name: Run Repository Security Scan
         run: npm run audit:security
 
-      - name: Run 20-Stage Master Universal Reality Gate
+      - name: Run Master Universal Reality Gate
         run: npm run reality:all
