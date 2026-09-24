@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
+    "build": "node scripts/compile-solidity.mjs",
     "compile": "node scripts/compile-solidity.mjs",
     "test": "npx tsx --test tests/qusd.spec.ts tests/pqc-gateway.spec.ts tests/timelock.spec.ts tests/faucet.spec.ts",
     "test:quantum": "npx tsx tests/qubo-portfolio.test.ts",

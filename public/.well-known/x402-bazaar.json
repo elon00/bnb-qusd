@@ -1,0 +1,112 @@
+{
+  "x402Version": 2,
+  "service": "BNB-QUSD Quantum-Resilient Stablecoin & Intelligent Portfolio Protocol",
+  "facilitator": "https://x402.org/facilitator",
+  "ready": true,
+  "catalogRegistration": "A Bazaar-capable facilitator indexes a resource after a conformant paid settlement echoes the bazaar extension.",
+  "provider": {
+    "name": "BNB-QUSD / Martin",
+    "website": "https://elon00.github.io/bnb-qusd/",
+    "payTo": "0x7e490297be89C34C1A2F3B90aeE97298a80871eF",
+    "unifiedEvmOwner": "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7",
+    "unifiedPhantomWallet": "BPshPrMazV7qunhcq18AvCHjSceHbKytiRDNrtCv68g3",
+    "network": "bsc-testnet",
+    "caip2": "eip155:97",
+    "smartContract": "0xcaB00E21C6a96b37A75e76c14cE7eed8E75B73e6",
+    "vaultContract": "0x554A04516816Fe123E41d6FA249ced137959181E",
+    "pqcGateway": "0xf48CD40aC610e90CBD99aE3a85375087b8E69A7E",
+    "currency": "BNB",
+    "supplyPolicy": "UNCAPPED_ELASTIC"
+  },
+  "items": [
+    {
+      "resource": "https://elon00.github.io/bnb-qusd/api/v1/x402/qubo/optimize",
+      "type": "http",
+      "x402Version": 2,
+      "accepts": [
+        {
+          "scheme": "exact",
+          "network": "eip155:97",
+          "amount": "1000000000000000",
+          "asset": "native",
+          "payTo": "0x7e490297be89C34C1A2F3B90aeE97298a80871eF",
+          "maxTimeoutSeconds": 60,
+          "extra": {
+            "name": "BNB",
+            "version": "2"
+          }
+        }
+      ],
+      "extensions": {
+        "bazaar": {
+          "info": {
+            "input": {
+              "type": "http",
+              "method": "POST",
+              "bodyType": "json",
+              "body": {
+                "action": "QUBO_OPTIMIZE_PORTFOLIO",
+                "payload": {
+                  "tokens": ["WBNB", "BTCB", "ETH", "FDUSD", "QUSD"],
+                  "k": 3
+                }
+              }
+            },
+            "output": {
+              "type": "json",
+              "example": {
+                "success": true,
+                "protocol": "x402-v2",
+                "service": "bnb-qusd-qubo-portfolio"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "resource": "https://elon00.github.io/bnb-qusd/api/v1/x402/pqc/attest",
+      "type": "http",
+      "x402Version": 2,
+      "accepts": [
+        {
+          "scheme": "exact",
+          "network": "eip155:97",
+          "amount": "1000000000000000",
+          "asset": "native",
+          "payTo": "0x7e490297be89C34C1A2F3B90aeE97298a80871eF",
+          "maxTimeoutSeconds": 60,
+          "extra": {
+            "name": "BNB",
+            "version": "2"
+          }
+        }
+      ],
+      "extensions": {
+        "bazaar": {
+          "info": {
+            "input": {
+              "type": "http",
+              "method": "POST",
+              "bodyType": "json",
+              "body": {
+                "action": "PQC_COMMITMENT_ATTEST",
+                "payload": {
+                  "messageDigest": "sha256_of_payload"
+                }
+              }
+            },
+            "output": {
+              "type": "json",
+              "example": {
+                "success": true,
+                "protocol": "x402-v2",
+                "service": "bnb-qusd-pqc-attestation"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
