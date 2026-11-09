@@ -1,7 +1,7 @@
 {
   "engine": "REA_Reverse_Engineer_Anything",
   "status": "STRUCTURE_RECONSTRUCTED",
-  "analyzed_files": 60,
+  "analyzed_files": 62,
   "manifest": {
     "bnb-qusd-evidence-registry.json": {
       "bytes": 4857
@@ -99,6 +99,12 @@
     "docs\\WHITEPAPER.md": {
       "bytes": 10035
     },
+    "reports\\RAVEN_RSI_DIAGNOSTIC.json": {
+      "bytes": 341
+    },
+    "reports\\REA_ANALYSIS.json": {
+      "bytes": 4053
+    },
     "scripts\\compile-solidity.mjs": {
       "bytes": 2485
     },
@@ -184,5 +190,5 @@
       "bytes": 5810
     }
   },
-  "timestamp": 1793989586
+  "timestamp": 1794220573
 }
