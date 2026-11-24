@@ -3,3 +3,6 @@ node_modules/
 dist/
 .DS_Store
 *.log
+
+# Lean 4 build artifacts
+lean_verify/.lake/
